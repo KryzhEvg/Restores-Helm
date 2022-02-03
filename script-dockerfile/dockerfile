@@ -1,0 +1,32 @@
+FROM debian:bullseye-slim
+RUN apt-get update && apt-get install wget gnupg2 curl -y
+RUN apt-get install default-mysql-client -y
+RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main' >> /etc/apt/sources.list.d/pgdg.list
+RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
+
+RUN apt-get update && apt-get install -y \
+    postgresql
+
+RUN apt update && apt install -y \
+	groff \
+	less \
+	python \
+	python3-pip \
+	&& rm -rf /var/cache/apk/* \
+  && pip install pip --upgrade \
+  && pip install awscli
+
+COPY restore.sh /restore.sh
+RUN chmod +x /restore.sh
+ENTRYPOINT ["/restore.sh"]
+CMD ["bash"]
+
+ENV BACKUP_TYPE \
+ENV MYSQL_PWD \
+ENV MYSQL_USER \
+ENV POSTGRES_USER \
+ENV HOST \
+ENV DB_NAME \
+ENV SLACK_URL \
+ENV BACKUP_STORAGE_URL \
+ENV CLUSTER \

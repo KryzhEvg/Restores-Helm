@@ -1,0 +1,31 @@
+{{- if .Values.restore_db.enabled -}}
+{{- $release_name := .Release.Name }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Values.restore.name }}
+  annotations:
+    vault.security.banzaicloud.io/vault-tls-secret: vault-ca-cert
+  namespace: {{ $.Values.cronjobNamespace }}
+spec:
+  schedule: {{ .Values.restore.schedule | quote }}
+  startingDeadlineSeconds: {{ .Values.restore.startingDeadlineSeconds }}
+  successfulJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: {{ $release_name }}
+            cron: {{ .Values.restore.name }}
+          annotations:
+            vault.security.banzaicloud.io/vault-env-from-path: {{ .Values.restore.annotations }}
+        spec:
+          restartPolicy: {{ .Values.restore.restartPolicy }}
+          serviceAccountName: {{ .Values.restore.serviceAccountName }}
+          containers:
+          - image: "{{ .Values.restore.image.name }}:{{ .Values.restore.image.tag }}"
+            name: {{ .Values.restore.name }}
+            imagePullPolicy: {{ .Values.restore.image.imagePullPolicy }}
+{{- end }}

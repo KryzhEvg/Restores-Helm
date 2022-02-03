@@ -1,0 +1,12 @@
+restore:
+    name: mysql-restore
+    image:
+      name: kryzha/db_restore
+      tag: v3
+      pullPolicy: Always
+    schedule: "*/1 * * * *"
+    restartPolicy: OnFailure
+    startingDeadlineSeconds: 30
+    annotations: backups/data/CAT-BP-testing/postgres
+    serviceAccountName: bakup-sa
+    namespace: test-backup
